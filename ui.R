@@ -16,7 +16,7 @@ dashboardPage(
                 box(
                   width = 8, status = "info", solidHeader = TRUE,
                   title = "Popularity by package (last 5 min)",
-                  bubblesOutput("packagePlot", width = "100%", height = 600)
+                  plotOutput("packagePlot", width = "100%", height = 600)
                 ),
                 box(
                   width = 4, status = "info",

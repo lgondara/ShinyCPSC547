@@ -5,10 +5,11 @@ function(input, output) {
   # data frame of new downloads since the last update.
   
   
-  output$packagePlot <- renderBubbles({
+  output$packagePlot <- renderPlot({
+    rdat=read.table("http://biostat.mc.vanderbilt.edu/wiki/pub/Main/DataSets/abm.dta",sep="")
     x=rnorm(1000)
     y=rnorm(1000)
-    bubbles(x,y)
+    plot(x,y)
   })
   
   output$packageTable <- renderTable({head(attitude,15)})
