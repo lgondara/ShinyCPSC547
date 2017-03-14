@@ -6,13 +6,18 @@ function(input, output) {
   
   
   output$packagePlot <- renderPlot({
-    rdat=read.table("http://biostat.mc.vanderbilt.edu/wiki/pub/Main/DataSets/abm.dta",sep="")
-    x=rnorm(1000)
-    y=rnorm(1000)
-    plot(x,y)
+    adata=read.table("https://www.umass.edu/statdata/statdata/data/actg320.dat")
+    adata=adata[,-1]
+    coll=Rtsne(adata)
+    tsned2=as.data.frame(coll$Y)
+    plot_ly(data = tsned2, x = ~V1, y = ~V2)
   })
   
-  output$packageTable <- renderTable({head(attitude,15)})
+  output$packagePlot2 <- renderPlot({
+    coll=Rtsne(adata, dims=3)
+    tsned3=coll$Y
+    plot(tsned3[,1],tsned3[,2])
+  })
   
   
   output$rawtable <- renderPrint({
@@ -21,3 +26,5 @@ function(input, output) {
     options(orig)
   })
 }
+
+

@@ -5,3 +5,7 @@ library(shinydashboard)
 library(bubbles)
 library(stargazer)
 library(Rtsne)
+library(plotly)
+
+
+
