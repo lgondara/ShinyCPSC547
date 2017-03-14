@@ -5,7 +5,7 @@ function(input, output) {
   # data frame of new downloads since the last update.
   
   
-  output$packagePlot <- renderPlot({
+  output$packagePlot <- renderPlotly({
     adata=read.table("https://www.umass.edu/statdata/statdata/data/actg320.dat")
     adata=adata[,-1]
     coll=Rtsne(adata)
@@ -13,10 +13,10 @@ function(input, output) {
     plot_ly(data = tsned2, x = ~V1, y = ~V2)
   })
   
-  output$packagePlot2 <- renderPlot({
+  output$packagePlot2 <- renderPlotly({
     coll=Rtsne(adata, dims=3)
-    tsned3=coll$Y
-    plot(tsned3[,1],tsned3[,2])
+    tsned3=as.data.frame(coll$Y)
+    plot_ly(data = tsned3, x = ~V1, y = ~V2)
   })
   
   

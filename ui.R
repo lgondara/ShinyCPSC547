@@ -16,12 +16,12 @@ dashboardPage(
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
                   title = "Two dimensional",
-                  plotOutput("packagePlot", width = "100%", height = 600)
+                  plotlyOutput("packagePlot", width = "100%", height = 600)
                 ),
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
                   title = "Three dimensional",
-                  plotOutput("packagePlot2", width = "100%", height = 600)
+                  plotlyOutput("packagePlot2", width = "100%", height = 600)
                 )
               )
       ),
