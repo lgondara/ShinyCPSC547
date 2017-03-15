@@ -1,9 +1,20 @@
+
+
 dashboardPage(
   dashboardHeader(title = "Exploratory data analysis"),
   dashboardSidebar(
-    sliderInput("rateThreshold", "Warn when rate exceeds",
-                min = 0, max = 50, value = 3, step = 0.1
+    
+    fileInput('file1', 'Choose file to upload',
+              accept = c(
+                'text/csv',
+                'text/comma-separated-values',
+                'text/tab-separated-values',
+                'text/plain',
+                '.csv',
+                '.tsv'
+              )
     ),
+
     sidebarMenu(
       menuItem("Dashboard", tabName = "dashboard"),
       menuItem("Raw data", tabName = "rawdata")
