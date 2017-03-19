@@ -6,27 +6,18 @@ function(input, output) {
   # data frame of new downloads since the last update.
   # By default, the file size limit is 5MB. It can be changed by
   # setting this option. Here we'll raise limit to 9MB.
-  
 
-  output$contents <- renderTable({
-      # input$file1 will be NULL initially. After the user selects
-      # and uploads a file, it will be a data frame with 'name',
-      # 'size', 'type', and 'datapath' columns. The 'datapath'
-      # column will contain the local filenames where the data can
-      # be found.
-      
+  
+  output$packagePlot <- renderPlotly({
+    
+    
       inFile <- input$file1
       
       if (is.null(inFile))
         return(NULL)
       
-      read.csv(inFile$datapath, header = input$header,
-               sep = input$sep, quote = input$quote)
-  })
-
-  
-  output$packagePlot <- renderPlotly({
-    adata=read.table("https://www.umass.edu/statdata/statdata/data/actg320.dat")
+    adata=read.csv(inFile$datapath)
+    
     adata=adata[,-1]
     coll=Rtsne(adata)
     tsned2=as.data.frame(coll$Y)
@@ -34,6 +25,13 @@ function(input, output) {
   })
   
   output$packagePlot2 <- renderPlotly({
+    inFile <- input$file1
+    
+    if (is.null(inFile))
+      return(NULL)
+    
+    adata=read.csv(inFile$datapath)
+    adata=adata[,-1]
     coll=Rtsne(adata, dims=3)
     tsned3=as.data.frame(coll$Y)
     plot_ly(data = tsned3, x = ~V1, y = ~V2, z = ~V3)
@@ -42,7 +40,7 @@ function(input, output) {
   
   output$rawtable <- renderPrint({
     orig <- options(width = 1000)
-    print(tail(attitude, 15))
+    print(tail(tsned3, 15))
     options(orig)
   })
 }
