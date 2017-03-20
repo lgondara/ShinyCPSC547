@@ -6,41 +6,41 @@ function(input, output) {
   # data frame of new downloads since the last update.
   # By default, the file size limit is 5MB. It can be changed by
   # setting this option. Here we'll raise limit to 9MB.
-
   
-  output$packagePlot <- renderPlotly({
-    
-    
-      inFile <- input$file1
-      
-      if (is.null(inFile))
-        return(NULL)
-      
-    adata=read.csv(inFile$datapath)
-    
-    adata=adata[,-1]
-    coll=Rtsne(adata)
-    tsned2=as.data.frame(coll$Y)
-    plot_ly(data = tsned2, x = ~V1, y = ~V2)
-  })
-  
-  output$packagePlot2 <- renderPlotly({
+  usevalues=reactive({
     inFile <- input$file1
     
     if (is.null(inFile))
       return(NULL)
     
     adata=read.csv(inFile$datapath)
+    
     adata=adata[,-1]
-    coll=Rtsne(adata, dims=3)
-    tsned3=as.data.frame(coll$Y)
-    plot_ly(data = tsned3, x = ~V1, y = ~V2, z = ~V3)
+    coll=Rtsne(adata)
+    tsned2=as.data.frame(coll$Y)
+    
+    coll2=Rtsne(adata, dims=3)
+    tsned3=as.data.frame(coll2$Y)
+    
+    allval=list(a=tsned2,b=tsned3)
+    allval
+  })
+  
+  output$packagePlot <- renderPlotly({
+    allval=usevalues()
+    plot_ly(data =allval$a, x = ~V1, y = ~V2)
+  })
+  
+  output$packagePlot2 <- renderPlotly({
+    allval=usevalues()
+    plot_ly(data = allval$b, x = ~V1, y = ~V2, z = ~V3)
   })
   
   
   output$rawtable <- renderPrint({
+    allval=usevalues()
     orig <- options(width = 1000)
-    print(tail(tsned3, 15))
+    print(tail(allval$a, 15))
     options(orig)
   })
 }
