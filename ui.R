@@ -27,14 +27,24 @@ dashboardPage(
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
                   title = "Two dimensional",
-                  plotlyOutput("packagePlot", width = "100%", height = 600)
+                  plotlyOutput("packagePlot", width = "100%", height = 400)
                 ),
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
                   title = "Three dimensional",
-                  plotlyOutput("packagePlot2", width = "100%", height = 600)
+                  plotlyOutput("packagePlot2", width = "100%", height = 400)
+                )
+              ),
+              
+              
+              fluidRow(
+                box(
+                  width = 6, status = "info", solidHeader = TRUE,
+                  title = "Clustering results",
+                  plotlyOutput("packagePlot3", width = "100%", height = 400)
                 )
               )
+              
       ),
       tabItem("rawdata",
               numericInput("maxrows", "Rows to show", 25),

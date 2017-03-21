@@ -36,6 +36,13 @@ function(input, output) {
     plot_ly(data = allval$b, x = ~V1, y = ~V2, z = ~V3)
   })
   
+  output$packagePlot3 <- renderPlotly({
+    allval=usevalues()
+    rtkm=kmeans(allval$a,2)
+    newdat=data.frame(allval$a, rtkm$cluster)
+    plot_ly(data = newdat, x = ~newdat[,1], y = ~newdat[,2],color=as.factor(newdat[,3]))
+  })
+  
   
   output$rawtable <- renderPrint({
     allval=usevalues()
