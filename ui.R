@@ -40,10 +40,16 @@ dashboardPage(
               fluidRow(
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
-                  title = "Clustering results",
+                  title = "Two dimensional",
                   plotlyOutput("packagePlot3", width = "100%", height = 400)
+                ),
+                box(
+                  width = 6, status = "info", solidHeader = TRUE,
+                  title = "Three dimensional",
+                  plotlyOutput("packagePlot4", width = "100%", height = 400)
                 )
               )
+              
               
       ),
       tabItem("rawdata",

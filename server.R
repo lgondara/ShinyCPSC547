@@ -22,7 +22,14 @@ function(input, output) {
     coll2=Rtsne(adata, dims=3)
     tsned3=as.data.frame(coll2$Y)
     
-    allval=list(a=tsned2,b=tsned3)
+    rtkm=kmeans(tsned2,2)
+    newdat=data.frame(tsned2, rtkm$cluster)
+    
+    kmdata=data.frame(adata, rtkm$cluster)
+    fit <- survfit(Surv(T3, D3) ~ rtkm.cluster, data = kmdata)
+    
+    
+    allval=list(a=tsned2,b=tsned3, c=newdat, d=fit)
     allval
   })
   
@@ -38,9 +45,12 @@ function(input, output) {
   
   output$packagePlot3 <- renderPlotly({
     allval=usevalues()
-    rtkm=kmeans(allval$a,2)
-    newdat=data.frame(allval$a, rtkm$cluster)
-    plot_ly(data = newdat, x = ~newdat[,1], y = ~newdat[,2],color=as.factor(newdat[,3]))
+    plot_ly(data = allval$c, x = ~allval$c[,1], y = ~allval$c[,2],color=as.factor(allval$c[,3]))
+  })
+  
+  output$packagePlot4 <- renderPlot({
+    allval=usevalues()
+    ggsurvplot(allval$d, risk.table = TRUE,pval = TRUE)
   })
   
   
