@@ -50,7 +50,7 @@ function(input, output) {
   
   output$packagePlot4 <- renderPlot({
     allval=usevalues()
-    ggsurvplot(allval$d, risk.table = TRUE,pval = TRUE)
+    ggsurvplot(fit=allval$d, risk.table = TRUE,pval = TRUE)
   })
   
   
