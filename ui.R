@@ -24,12 +24,14 @@ dashboardPage(
     uiOutput("vars"),
     uiOutput("time"),
     uiOutput("censor"),
+    uiOutput("numclust"),
     tags$hr(),
     actionButton("action", "Run"),
   
 
     sidebarMenu(
       menuItem("Dashboard", tabName = "dashboard"),
+      menuItem("Explore", tabName = "Explore"),
       menuItem("Raw data", tabName = "rawdata")
     )
   ),
@@ -66,6 +68,12 @@ dashboardPage(
               
               
       ),
+      tabItem("Explore",
+              numericInput("maxrows", "Rows to show", 25),
+              verbatimTextOutput("rawtable"),
+              downloadButton("downloadCsv", "Download as CSV")
+      ),
+      
       tabItem("rawdata",
               numericInput("maxrows", "Rows to show", 25),
               verbatimTextOutput("rawtable"),

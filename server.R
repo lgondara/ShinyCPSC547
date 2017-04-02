@@ -41,6 +41,12 @@ function(input, output) {
     selectInput("censor","Select censor",items, multiple = F)
   })
   
+  output$numclust<- renderUI({
+    items=c(1:5)
+    names(items)=items
+    selectInput("numclust","Select cluster",items, multiple = F)
+  })
+  
   models=eventReactive(input$action,{
     adata=info()
     adatause=adata[input$vars]
@@ -48,23 +54,36 @@ function(input, output) {
     timeout=as.numeric(unlist(timeout))
     censor=adata[input$censor]
     censor=unlist(censor)
+    cnum=input$numclust
+    cnum=as.numeric(unlist(cnum))
+    
     coll=Rtsne(adatause, check_duplicates = FALSE)
     tsned2=as.data.frame(coll$Y)
     
-    rtkm=kmeans(tsned2,2)
+    rtkm=kmeans(tsned2,cnum)
     newdat=data.frame(tsned2, rtkm$cluster)
     
     kmdata=data.frame(timeout,censor,rtkm$cluster)
     fit <- survfit(Surv(timeout,censor) ~ rtkm.cluster, data=kmdata)
     
+    k.max=10
+    ss <- sapply(1:k.max, 
+                 function(k){kmeans(tsned2, k, nstart=50,iter.max = 15 )$tot.withinss})
     
-    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit)
+    
+    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss)
     allval
   })
   
   output$packagePlot <- renderPlotly({
     allval=models()
     plot_ly(data =allval$a, x = ~V1, y = ~V2)
+  })
+  
+  output$packagePlot2 <- renderPlotly({
+    allval=models()
+    duse=as.data.frame(cbind(y=allval$e,x=1:10))
+    plot_ly(duse, x = ~x, y = ~y, name = 'Test', type = 'scatter', mode = 'lines')
   })
   
   
