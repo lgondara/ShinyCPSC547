@@ -3,7 +3,6 @@
 dashboardPage(
   dashboardHeader(title = "Exploratory data analysis"),
   dashboardSidebar(
-    
     fileInput('file1', 'Choose file to upload',
               accept = c(
                 'text/csv',
@@ -14,12 +13,27 @@ dashboardPage(
                 '.tsv'
               )
     ),
+    
+    tags$hr(),
+    checkboxInput('header', 'Header', TRUE),
+    radioButtons('sep', 'Separator',
+                 c(Comma=',',
+                   Semicolon=';',
+                   Tab='\t'),
+                 ','),
+    uiOutput("vars"),
+    uiOutput("time"),
+    uiOutput("censor"),
+    tags$hr(),
+    actionButton("action", "Run"),
+  
 
     sidebarMenu(
       menuItem("Dashboard", tabName = "dashboard"),
       menuItem("Raw data", tabName = "rawdata")
     )
   ),
+    
   dashboardBody(
     tabItems(
       tabItem("dashboard",

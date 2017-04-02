@@ -1,4 +1,3 @@
-options(shiny.maxRequestSize = 9*1024^2)
 function(input, output) {
   
   # pkgStream is a reactive expression that represents a stream of
@@ -7,59 +6,88 @@ function(input, output) {
   # By default, the file size limit is 5MB. It can be changed by
   # setting this option. Here we'll raise limit to 9MB.
   
-  usevalues=reactive({
-    inFile <- input$file1
-    
-    if (is.null(inFile))
-      return(NULL)
-    
-    adata=read.csv(inFile$datapath)
-    
-    adata=adata[,-1]
-    coll=Rtsne(adata)
+  info <- reactive({
+    infile <- input$file1
+    if (is.null(infile)){
+      return(NULL)      
+    }
+    read.table(infile$datapath, header = input$header, sep = input$sep)
+  })
+  
+  
+  output$vars<- renderUI({
+    df <- info()
+    if (is.null(df)) return(NULL)
+    items=names(df)
+    names(items)=items
+    selectInput("vars","Select variables",items, multiple = T)
+  })
+  
+  
+  output$time<- renderUI({
+    df <- info()
+    if (is.null(df)) return(NULL)
+    items=names(df)
+    names(items)=items
+    selectInput("time","Select time",items, multiple = F)
+  })
+  
+  
+  output$censor<- renderUI({
+    df <- info()
+    if (is.null(df)) return(NULL)
+    items=names(df)
+    names(items)=items
+    selectInput("censor","Select censor",items, multiple = F)
+  })
+  
+  models=eventReactive(input$action,{
+    adata=info()
+    adatause=adata[input$vars]
+    timeout=adata[input$time]
+    timeout=as.numeric(unlist(timeout))
+    censor=adata[input$censor]
+    censor=unlist(censor)
+    coll=Rtsne(adatause, check_duplicates = FALSE)
     tsned2=as.data.frame(coll$Y)
-    
-    coll2=Rtsne(adata, dims=3)
-    tsned3=as.data.frame(coll2$Y)
     
     rtkm=kmeans(tsned2,2)
     newdat=data.frame(tsned2, rtkm$cluster)
     
-    kmdata=data.frame(adata, rtkm$cluster)
-    fit <- survfit(Surv(T3, D3) ~ rtkm.cluster, data = kmdata)
+    kmdata=data.frame(timeout,censor,rtkm$cluster)
+    fit <- survfit(Surv(timeout,censor) ~ rtkm.cluster, data=kmdata)
     
     
-    allval=list(a=tsned2,b=tsned3, c=newdat, d=fit)
+    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit)
     allval
   })
   
   output$packagePlot <- renderPlotly({
-    allval=usevalues()
+    allval=models()
     plot_ly(data =allval$a, x = ~V1, y = ~V2)
   })
   
-  output$packagePlot2 <- renderPlotly({
-    allval=usevalues()
-    plot_ly(data = allval$b, x = ~V1, y = ~V2, z = ~V3)
-  })
   
   output$packagePlot3 <- renderPlotly({
-    allval=usevalues()
+    allval=models()
     plot_ly(data = allval$c, x = ~allval$c[,1], y = ~allval$c[,2],color=as.factor(allval$c[,3]))
   })
   
   output$packagePlot4 <- renderPlot({
-    allval=usevalues()
-    ggsurvplot(fit=allval$d, risk.table = TRUE,pval = TRUE)
+    allval=models()
+    ggsurvplot(fit=allval$d, risk.table = TRUE,pval = TRUE,data=allval$b)
   })
   
   
   output$rawtable <- renderPrint({
-    allval=usevalues()
+    adata=models()
     orig <- options(width = 1000)
-    print(tail(allval$a, 15))
+    print(tail(adata$b, 15))
     options(orig)
   })
 }
+ 
+
+
 
 
