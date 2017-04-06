@@ -31,8 +31,7 @@ dashboardPage(
 
     sidebarMenu(
       menuItem("Dashboard", tabName = "dashboard"),
-      menuItem("Explore", tabName = "Explore"),
-      menuItem("Raw data", tabName = "rawdata")
+      menuItem("Explore", tabName = "explore")
     )
   ),
     
@@ -42,12 +41,12 @@ dashboardPage(
               fluidRow(
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
-                  title = "Two dimensional",
-                  plotlyOutput("packagePlot", width = "100%", height = 400)
+                  title = "tSNE and cluster results",
+                  plotlyOutput("packagePlot3", width = "100%", height = 400)
                 ),
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
-                  title = "Three dimensional",
+                  title = "Optimal number of clusters",
                   plotlyOutput("packagePlot2", width = "100%", height = 400)
                 )
               ),
@@ -56,8 +55,8 @@ dashboardPage(
               fluidRow(
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
-                  title = "KNN results",
-                  plotlyOutput("packagePlot3", width = "100%", height = 400)
+                  title = "Cluster outcome",
+                  plotOutput("packagePlot", width = "100%", height = 400)
                 ),
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
@@ -68,16 +67,15 @@ dashboardPage(
               
               
       ),
-      tabItem("Explore",
-              numericInput("maxrows", "Rows to show", 25),
-              verbatimTextOutput("rawtable"),
-              downloadButton("downloadCsv", "Download as CSV")
-      ),
-      
-      tabItem("rawdata",
-              numericInput("maxrows", "Rows to show", 25),
-              verbatimTextOutput("rawtable"),
-              downloadButton("downloadCsv", "Download as CSV")
+      tabItem("explore",
+              
+              fluidRow(
+                box(
+                  width = 6, status = "info", solidHeader = TRUE,
+                  title = "Two dimensional",
+                  d3heatmapOutput("heatmap", width = "100%", height = 400)
+                )
+              )
       )
     )
   )

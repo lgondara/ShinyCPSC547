@@ -70,20 +70,31 @@ function(input, output) {
     ss <- sapply(1:k.max, 
                  function(k){kmeans(tsned2, k, nstart=50,iter.max = 15 )$tot.withinss})
     
+    kResults <- data.frame(adatause, cluster = rtkm$cluster)
     
-    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss)
+    rl <- as.data.frame(lapply(1:cnum, function(x){ r3 <- kResults[kResults$cluster == x, 
+                                                                setdiff(names(kResults), 'cluster')] 
+    r4 <- colSums(r3) / nrow(r3)
+    r4
+    }))
+    names(rl) <- paste("cluster",1:cnum)
+    
+    
+    
+    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss,f=rl,g=kResults)
     allval
   })
   
-  output$packagePlot <- renderPlotly({
+  output$packagePlot <- renderPlot({
     allval=models()
-    plot_ly(data =allval$a, x = ~V1, y = ~V2)
+    datause=allval$g
+    parcoord(datause, col=as.factor(datause$cluster))
   })
   
   output$packagePlot2 <- renderPlotly({
     allval=models()
     duse=as.data.frame(cbind(y=allval$e,x=1:10))
-    plot_ly(duse, x = ~x, y = ~y, name = 'Test', type = 'scatter', mode = 'lines')
+    plot_ly(duse, x = ~x, y = ~y, name = 'Test', type = 'scatter', mode = 'lines+markers')
   })
   
   
@@ -97,6 +108,11 @@ function(input, output) {
     ggsurvplot(fit=allval$d, risk.table = TRUE,pval = TRUE,data=allval$b)
   })
   
+  
+  output$heatmap= renderD3heatmap({
+    allval=models()
+    d3heatmap(allval$f, theme="dark", scale = 'row')
+  })
   
   output$rawtable <- renderPrint({
     adata=models()
