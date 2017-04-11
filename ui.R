@@ -70,10 +70,12 @@ dashboardPage(
       tabItem("explore",
               
               fluidRow(
+                uiOutput("exploreclus"),
+                actionButton("action2", "Run"),
                 box(
-                  width = 6, status = "info", solidHeader = TRUE,
+                  width = "100%", status = "info", solidHeader = TRUE,
                   title = "Two dimensional",
-                  d3heatmapOutput("heatmap", width = "100%", height = 400)
+                  plotOutput("scatterplot", width = "100%", height = 400)
                 )
               )
       )

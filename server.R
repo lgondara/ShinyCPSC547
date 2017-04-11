@@ -47,6 +47,7 @@ function(input, output) {
     selectInput("numclust","Select cluster",items, multiple = F)
   })
   
+
   models=eventReactive(input$action,{
     adata=info()
     adatause=adata[input$vars]
@@ -70,7 +71,8 @@ function(input, output) {
     ss <- sapply(1:k.max, 
                  function(k){kmeans(tsned2, k, nstart=50,iter.max = 15 )$tot.withinss})
     
-    kResults <- data.frame(adatause, cluster = rtkm$cluster)
+    kResults <- data.frame(adatause, cluster = as.factor(rtkm$cluster))
+    kResults2 <- data.frame(adatause, cluster = rtkm$cluster)
     
     rl <- as.data.frame(lapply(1:cnum, function(x){ r3 <- kResults[kResults$cluster == x, 
                                                                 setdiff(names(kResults), 'cluster')] 
@@ -81,13 +83,13 @@ function(input, output) {
     
     
     
-    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss,f=rl,g=kResults)
+    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss,f=rl,g=kResults,h=kResults2)
     allval
   })
   
   output$packagePlot <- renderPlot({
     allval=models()
-    datause=allval$g
+    datause=allval$h
     parcoord(datause, col=as.factor(datause$cluster))
   })
   
@@ -109,17 +111,28 @@ function(input, output) {
   })
   
   
-  output$heatmap= renderD3heatmap({
+  output$exploreclus<- renderUI({
     allval=models()
-    d3heatmap(allval$f, theme="dark", scale = 'row')
+    items=names(allval$g[,-ncol(allval$g)])
+    names(items)=items
+    selectInput("exploreclus","Select variables to explore",items, multiple = T)
   })
   
-  output$rawtable <- renderPrint({
+  models2=eventReactive(input$action2,{
     adata=models()
-    orig <- options(width = 1000)
-    print(tail(adata$b, 15))
-    options(orig)
+    clususe=adata$g[input$exploreclus]
+  
+    kclususe <- data.frame(clususe, cluster = adata$g[,ncol(adata$g)])
+    allval2=list(a=kclususe,b=input$exploreclus)
+    allval2
   })
+  
+ output$scatterplot=renderPlot({
+   allval=models2()
+   kdata=allval$a
+   ggpairs(kdata,columns =unlist(allval$b),aes(col=cluster),upper="blank")
+ })
+  
 }
  
 
