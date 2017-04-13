@@ -87,11 +87,24 @@ function(input, output) {
     allval
   })
   
-  output$packagePlot <- renderPlot({
+  output$parcoords = renderParcoords({
     allval=models()
     datause=allval$h
-    parcoord(datause, col=as.factor(datause$cluster))
+    parcoords(
+      datause  # order columns so species first
+      , rownames=F
+      , brushMode="1d"
+      , color = list(
+        colorScale = htmlwidgets::JS(sprintf(
+          'd3.scale.ordinal().range(%s).domain(%s)'
+          ,jsonlite::toJSON(RColorBrewer::brewer.pal(3,'Set1'))
+          ,jsonlite::toJSON(as.character(unique(datause$cluster)))
+        ))
+        ,colorBy = "cluster"
+      )
+    )
   })
+  
   
   output$packagePlot2 <- renderPlotly({
     allval=models()

@@ -56,7 +56,7 @@ dashboardPage(
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
                   title = "Cluster outcome",
-                  plotOutput("packagePlot", width = "100%", height = 400)
+                  parcoordsOutput("parcoords", width = "100%", height = 400)
                 ),
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
