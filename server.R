@@ -11,7 +11,9 @@ function(input, output) {
     if (is.null(infile)){
       return(NULL)      
     }
-    read.table(infile$datapath, header = input$header, sep = input$sep)
+    t=read.table(infile$datapath, header = input$header, sep = input$sep)
+    t=t[complete.cases(t),]
+    return(t)
   })
   
   
@@ -64,8 +66,17 @@ function(input, output) {
     rtkm=kmeans(tsned2,cnum)
     newdat=data.frame(tsned2, rtkm$cluster)
     
+    cl=clusGap(tsned2, kmeans, 5, B = 100, verbose = F)
+    optclus=with(cl,maxSE(Tab[,"gap"],Tab[,"SE.sim"]))
+    rtkm2=kmeans(tsned2,optclus)
+
     kmdata=data.frame(timeout,censor,rtkm$cluster)
-    fit <- survfit(Surv(timeout,censor) ~ rtkm.cluster, data=kmdata)
+    fit <- survfit(Surv(timeout,censor==1) ~ rtkm.cluster, data=kmdata)
+    
+    kmdata2=data.frame(timeout,censor,rtkm2$cluster)
+    fit2 <- survfit(Surv(timeout,censor==1) ~ rtkm2.cluster, data=kmdata2)
+    
+    
     
     k.max=10
     ss <- sapply(1:k.max, 
@@ -74,16 +85,16 @@ function(input, output) {
     kResults <- data.frame(adatause, cluster = as.factor(rtkm$cluster))
     kResults2 <- data.frame(adatause, cluster = rtkm$cluster)
     
-    rl <- as.data.frame(lapply(1:cnum, function(x){ r3 <- kResults[kResults$cluster == x, 
-                                                                setdiff(names(kResults), 'cluster')] 
-    r4 <- colSums(r3) / nrow(r3)
-    r4
-    }))
-    names(rl) <- paste("cluster",1:cnum)
+   # rl <- as.data.frame(lapply(1:cnum, function(x){ r3 <- kResults[kResults$cluster == x, 
+    #                                                            setdiff(names(kResults), 'cluster')] 
+    #r4 <- colSums(r3) / nrow(r3)
+    #r4
+    #}))
+    #names(rl) <- paste("cluster",1:cnum)
     
     
     
-    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss,f=rl,g=kResults,h=kResults2)
+    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss,g=kResults,h=kResults2, i=fit2, j=kmdata2)
     allval
   })
   
@@ -109,18 +120,37 @@ function(input, output) {
   output$packagePlot2 <- renderPlotly({
     allval=models()
     duse=as.data.frame(cbind(y=allval$e,x=1:10))
-    plot_ly(duse, x = ~x, y = ~y, name = 'Test', type = 'scatter', mode = 'lines+markers')
+    x <- list(
+      title = "Number of clusters"
+    )
+    y <- list(
+      title = "MSE"
+    )
+    plot_ly(duse, x = ~x, y = ~y, name = 'Test', type = 'scatter', mode = 'lines+markers')%>%
+      layout(xaxis = x, yaxis = y)
   })
   
   
   output$packagePlot3 <- renderPlotly({
     allval=models()
-    plot_ly(data = allval$c, x = ~allval$c[,1], y = ~allval$c[,2],color=as.factor(allval$c[,3]))
+    x <- list(
+      title = "Dimension 1"
+    )
+    y <- list(
+      title = "Dimension 2"
+    )
+    plot_ly(data = allval$c, x = ~allval$c[,1], y = ~allval$c[,2],color=as.factor(allval$c[,3]))%>%
+      layout(xaxis = x, yaxis = y)
   })
   
   output$packagePlot4 <- renderPlot({
     allval=models()
     ggsurvplot(fit=allval$d, risk.table = TRUE,pval = TRUE,data=allval$b)
+  })
+  
+  output$packagePlot5 <- renderPlot({
+    allval=models()
+    ggsurvplot(fit=allval$i, risk.table = TRUE,pval = TRUE,data=allval$j)
   })
   
   

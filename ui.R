@@ -46,7 +46,7 @@ dashboardPage(
                 ),
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
-                  title = "Optimal number of clusters",
+                  title = "Number of clusters by MSE",
                   plotlyOutput("packagePlot2", width = "100%", height = 400)
                 )
               ),
@@ -55,12 +55,13 @@ dashboardPage(
               fluidRow(
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
-                  title = "Cluster outcome",
-                  parcoordsOutput("parcoords", width = "100%", height = 400)
-                ),
+                  title = "KM plot-optimal clusters",
+                  plotOutput("packagePlot5", width = "100%", height = 400)
+                )
+                ,
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
-                  title = "KM plot",
+                  title = "KM plot-user selected",
                   plotOutput("packagePlot4", width = "100%", height = 400)
                 )
               )
@@ -70,13 +71,20 @@ dashboardPage(
       tabItem("explore",
               
               fluidRow(
+                box(
+                  width = "100%", status = "info", solidHeader = TRUE,
+                  title = "Cluster outcome for all variables",
+                  parcoordsOutput("parcoords", width = "100%", height = 400)
+                ),
+                
                 uiOutput("exploreclus"),
                 actionButton("action2", "Run"),
                 box(
                   width = "100%", status = "info", solidHeader = TRUE,
-                  title = "Two dimensional",
+                  title = "Variable by cluster",
                   plotOutput("scatterplot", width = "100%", height = 400)
                 )
+                
               )
       )
     )
