@@ -173,7 +173,7 @@ function(input, output) {
  output$scatterplot=renderPlot({
    allval=models2()
    kdata=allval$a
-   ggpairs(kdata,columns =unlist(allval$b),aes(col=cluster),upper="blank")
+   ggpairs(kdata,columns =unlist(allval$b),aes(col=cluster),upper="blank", lower="blank")+theme_classic()
  })
   
 }
