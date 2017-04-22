@@ -36,8 +36,16 @@ dashboardPage(
   ),
     
   dashboardBody(
+    useShinyjs(),
     tabItems(
       tabItem("dashboard",
+              fluidRow(
+                parcoordsOutput("parcoords2", width = "100%", height = 400),
+                
+                parcoordsOutput("parcoords", width = "100%", height = 400)
+                
+                ),
+              
               fluidRow(
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
@@ -53,16 +61,17 @@ dashboardPage(
               
               
               fluidRow(
-                box(
-                  width = 6, status = "info", solidHeader = TRUE,
-                  title = "KM plot-optimal clusters",
-                  plotOutput("packagePlot5", width = "100%", height = 400)
-                )
-                ,
+        
                 box(
                   width = 6, status = "info", solidHeader = TRUE,
                   title = "KM plot-user selected",
                   plotOutput("packagePlot4", width = "100%", height = 400)
+                ),
+                
+                box(
+                  width = 6, status = "info", solidHeader = TRUE,
+                  title = "KM plot-optimal clusters",
+                  plotOutput("packagePlot5", width = "100%", height = 400)
                 )
               )
               
@@ -71,18 +80,11 @@ dashboardPage(
       tabItem("explore",
               
               fluidRow(
-                box(
-                  width = "100%", status = "info", solidHeader = TRUE,
-                  title = "Cluster outcome for all variables",
-                  parcoordsOutput("parcoords", width = "100%", height = 400)
-                ),
-                
-                uiOutput("exploreclus"),
-                actionButton("action2", "Run"),
+
                 box(
                   width = "100%", status = "info", solidHeader = TRUE,
                   title = "Variable by cluster",
-                  plotOutput("scatterplot", width = "100%", height = 400)
+                  pairsD3Output("scatterplot", width = "100%",height = 1000)
                 )
                 
               )

@@ -12,3 +12,6 @@ library(GGally)
 library(MASS)
 library(parcoords)
 library(cluster)
+library(shinyjs)
+library(pairsD3)
+

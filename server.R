@@ -1,10 +1,31 @@
 function(input, output) {
   
-  # pkgStream is a reactive expression that represents a stream of
-  # new package download data; up to once a second it may return a
-  # data frame of new downloads since the last update.
-  # By default, the file size limit is 5MB. It can be changed by
-  # setting this option. Here we'll raise limit to 9MB.
+  observe({
+    if (is.null(input$vars) || input$vars == "") {
+      shinyjs::disable("action")
+    } else {
+      shinyjs::enable("action")
+    }
+  })
+  
+  observe({
+    if (is.null(input$vars) || input$vars == "") {
+      shinyjs::hide("parcoords")
+      shinyjs::hide("packagePlot2")
+      shinyjs::hide("packagePlot3")
+      shinyjs::hide("packagePlot4")
+      shinyjs::hide("packagePlot5")
+    }
+  })
+  
+  observeEvent(input$action, {
+      shinyjs::hide("parcoords2")
+      shinyjs::show("parcoords")
+      shinyjs::show("packagePlot2")
+      shinyjs::show("packagePlot3")
+      shinyjs::show("packagePlot4")
+      shinyjs::show("packagePlot5")
+  })
   
   info <- reactive({
     infile <- input$file1
@@ -22,7 +43,7 @@ function(input, output) {
     if (is.null(df)) return(NULL)
     items=names(df)
     names(items)=items
-    selectInput("vars","Select variables",items, multiple = T)
+    selectInput("vars","Select variables",items, multiple = T,selected = NULL)
   })
   
   
@@ -59,6 +80,10 @@ function(input, output) {
     censor=unlist(censor)
     cnum=input$numclust
     cnum=as.numeric(unlist(cnum))
+    colors=c("#ff9900","#3366cc", "#109618", "#dc3912", "#990099")
+    coloruse=colors[1:cnum]
+    
+    
     
     coll=Rtsne(adatause, check_duplicates = FALSE)
     tsned2=as.data.frame(coll$Y)
@@ -85,34 +110,28 @@ function(input, output) {
     kResults <- data.frame(adatause, cluster = as.factor(rtkm$cluster))
     kResults2 <- data.frame(adatause, cluster = rtkm$cluster)
     
-   # rl <- as.data.frame(lapply(1:cnum, function(x){ r3 <- kResults[kResults$cluster == x, 
-    #                                                            setdiff(names(kResults), 'cluster')] 
-    #r4 <- colSums(r3) / nrow(r3)
-    #r4
-    #}))
-    #names(rl) <- paste("cluster",1:cnum)
     
-    
-    
-    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss,g=kResults,h=kResults2, i=fit2, j=kmdata2)
+    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss,g=kResults,h=kResults2, i=fit2, j=kmdata2,k=coloruse)
     allval
   })
   
+  
   output$parcoords = renderParcoords({
+    
     allval=models()
     datause=allval$h
-    parcoords(
-      datause  # order columns so species first
-      , rownames=F
-      , brushMode="1d"
-      , color = list(
-        colorScale = htmlwidgets::JS(sprintf(
-          'd3.scale.ordinal().range(%s).domain(%s)'
-          ,jsonlite::toJSON(RColorBrewer::brewer.pal(3,'Set1'))
-          ,jsonlite::toJSON(as.character(unique(datause$cluster)))
-        ))
-        ,colorBy = "cluster"
-      )
+    
+    
+    parcoords(datause, rownames=F, brushMode="1d", color = list(colorBy="cluster",colorScale=htmlwidgets::JS('d3.scale.category10()')))
+    
+  })
+  
+  output$parcoords2 = renderParcoords({
+    
+    
+    data=info()
+    if (is.null(data)) return(NULL)
+    parcoords(data, rownames=F, brushMode="1d"
     )
   })
   
@@ -133,50 +152,39 @@ function(input, output) {
   
   output$packagePlot3 <- renderPlotly({
     allval=models()
+    
     x <- list(
       title = "Dimension 1"
     )
     y <- list(
       title = "Dimension 2"
     )
-    plot_ly(data = allval$c, x = ~allval$c[,1], y = ~allval$c[,2],color=as.factor(allval$c[,3]))%>%
+    plot_ly(data = allval$c, x = ~allval$c[,1], y = ~allval$c[,2],color=as.factor(allval$c[,3]),colors=allval$k)%>%
       layout(xaxis = x, yaxis = y)
   })
   
   output$packagePlot4 <- renderPlot({
     allval=models()
-    ggsurvplot(fit=allval$d, risk.table = TRUE,pval = TRUE,data=allval$b)
+    ggsurvplot(fit=allval$d, risk.table = F,pval = TRUE,data=allval$b,palette =allval$k)
   })
   
   output$packagePlot5 <- renderPlot({
     allval=models()
-    ggsurvplot(fit=allval$i, risk.table = TRUE,pval = TRUE,data=allval$j)
+    ggsurvplot(fit=allval$i, risk.table = F,pval = TRUE,data=allval$j,palette =allval$k)
   })
   
   
-  output$exploreclus<- renderUI({
-    allval=models()
-    items=names(allval$g[,-ncol(allval$g)])
-    names(items)=items
-    selectInput("exploreclus","Select variables to explore",items, multiple = T)
-  })
-  
-  models2=eventReactive(input$action2,{
-    adata=models()
-    clususe=adata$g[input$exploreclus]
-  
-    kclususe <- data.frame(clususe, cluster = adata$g[,ncol(adata$g)])
-    allval2=list(a=kclususe,b=input$exploreclus)
-    allval2
-  })
-  
- output$scatterplot=renderPlot({
-   allval=models2()
-   kdata=allval$a
-   ggpairs(kdata,columns =unlist(allval$b),aes(col=cluster),upper="blank", lower="blank")+theme_classic()
+ 
+ output$scatterplot=renderPairsD3({
+   allval=models()
+   kdata=allval$g
+   cluster=kdata$cluster
+   pairsD3(kdata[,-ncol(kdata)],group=cluster,big = T, col=allval$k)
  })
   
-}
+ 
+ 
+ }
  
 
 
