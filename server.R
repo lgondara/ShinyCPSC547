@@ -1,4 +1,5 @@
 function(input, output) {
+  set.seed(1000)
   
   observe({
     if (is.null(input$vars) || input$vars == "") {
@@ -84,7 +85,7 @@ function(input, output) {
     coloruse=colors[1:cnum]
     
     
-    
+    set.seed(1000)
     coll=Rtsne(adatause, check_duplicates = FALSE)
     tsned2=as.data.frame(coll$Y)
     
@@ -110,8 +111,20 @@ function(input, output) {
     kResults <- data.frame(adatause, cluster = as.factor(rtkm$cluster))
     kResults2 <- data.frame(adatause, cluster = rtkm$cluster)
     
+    nums <- sapply(kResults, is.numeric)
+    testcont=kResults[, nums]
     
-    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss,g=kResults,h=kResults2, i=fit2, j=kmdata2,k=coloruse)
+    pp=lapply(testcont, function(y) kruskal.test(y~kResults$cluster)[3])
+    pp=as.data.frame((pp))
+    ppt = pp<0.05
+    
+    sigvar=testcont[,ppt]
+    
+    sigvarclus=data.frame(sigvar, cluster = as.factor(rtkm$cluster))
+    
+    
+    
+    allval=list(a=tsned2, b=kmdata,c=newdat, d=fit,e=ss,g=kResults,h=kResults2, i=fit2, j=kmdata2,k=coloruse, l=colors, m=sigvarclus)
     allval
   })
   
@@ -170,20 +183,25 @@ function(input, output) {
   
   output$packagePlot5 <- renderPlot({
     allval=models()
-    ggsurvplot(fit=allval$i, risk.table = F,pval = TRUE,data=allval$j,palette =allval$k)
+    ggsurvplot(fit=allval$i, risk.table = F,pval = TRUE,data=allval$j,palette =allval$l)
   })
   
   
- 
- output$scatterplot=renderPairsD3({
+
+  output$scatterplot=renderPairsD3({
+    allval=models()
+    kdata=allval$g
+    cluster=kdata$cluster
+    pairsD3(kdata[,-ncol(kdata)],group=cluster,big = T, col=allval$k)
+  })  
+   
+ output$scatterplot2=renderPairsD3({
    allval=models()
-   kdata=allval$g
+   kdata=allval$m
    cluster=kdata$cluster
    pairsD3(kdata[,-ncol(kdata)],group=cluster,big = T, col=allval$k)
  })
   
- 
- 
  }
  
 
