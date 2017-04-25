@@ -1,7 +1,7 @@
 
 
 dashboardPage(
-  dashboardHeader(title = "Exploratory data analysis"),
+  dashboardHeader(title = "SurvClusVis"),
   dashboardSidebar(
     fileInput('file1', 'Choose file to upload',
               accept = c(

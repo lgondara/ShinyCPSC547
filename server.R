@@ -156,7 +156,7 @@ function(input, output) {
       title = "Number of clusters"
     )
     y <- list(
-      title = "MSE"
+      title = "Mean Squared Error"
     )
     plot_ly(duse, x = ~x, y = ~y, name = 'Test', type = 'scatter', mode = 'lines+markers')%>%
       layout(xaxis = x, yaxis = y)
