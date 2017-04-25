@@ -167,10 +167,10 @@ function(input, output) {
     allval=models()
     
     x <- list(
-      title = "Dimension 1"
+      title = ""
     )
     y <- list(
-      title = "Dimension 2"
+      title = ""
     )
     plot_ly(data = allval$c, x = ~allval$c[,1], y = ~allval$c[,2],color=as.factor(allval$c[,3]),colors=allval$k)%>%
       layout(xaxis = x, yaxis = y)
