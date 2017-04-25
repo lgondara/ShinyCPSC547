@@ -86,9 +86,9 @@ dashboardPage(
                              selected = "All variables", inline=T),    
                 
                   conditionalPanel(
-                    condition = "input.col == 'All variables'", pairsD3Output("scatterplot")),
+                    condition = "input.col == 'All variables'", pairsD3Output("scatterplot",width = "100%", height = 800)),
                   conditionalPanel(
-                    condition = "input.col == 'Statistically signficant'", pairsD3Output("scatterplot2"))
+                    condition = "input.col == 'Statistically signficant'", pairsD3Output("scatterplot2",width = "100%", height = 800))
                 
                 
               )
