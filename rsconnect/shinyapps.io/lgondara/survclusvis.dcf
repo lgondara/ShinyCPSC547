@@ -2,7 +2,7 @@ name: survclusvis
 title:
 account: lgondara
 server: shinyapps.io
-appId: 175192
-bundleId: 803055
+appId: 175201
+bundleId: 803100
 url: https://lgondara.shinyapps.io/survclusvis/
-when: 1493126914.6019
+when: 1493128523.12693

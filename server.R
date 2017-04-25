@@ -81,7 +81,7 @@ function(input, output) {
     censor=unlist(censor)
     cnum=input$numclust
     cnum=as.numeric(unlist(cnum))
-    colors=c("#ff9900","#3366cc", "#109618", "#dc3912", "#990099")
+    colors=c("#3366cc","#ff9900", "#109618", "#dc3912", "#990099")
     coloruse=colors[1:cnum]
     
     
