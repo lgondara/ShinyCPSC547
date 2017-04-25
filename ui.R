@@ -85,14 +85,11 @@ dashboardPage(
                              choices = c("All variables", "Statistically signficant"),
                              selected = "All variables", inline=T),    
                 
-                box(
-                  width = "100%", status = "info", solidHeader = TRUE,
-                  title = "Explore clusters",
                   conditionalPanel(
                     condition = "input.col == 'All variables'", pairsD3Output("scatterplot")),
                   conditionalPanel(
                     condition = "input.col == 'Statistically signficant'", pairsD3Output("scatterplot2"))
-                )
+                
                 
               )
       )
