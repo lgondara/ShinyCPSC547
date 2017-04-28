@@ -1,6 +1,8 @@
 function(input, output) {
+  # set seed for reproducable tSNE
   set.seed(1000)
   
+  # if no variables are selected, disable the run button
   observe({
     if (is.null(input$vars) || input$vars == "") {
       shinyjs::disable("action")
@@ -9,6 +11,7 @@ function(input, output) {
     }
   })
   
+  # this piece of code hides and shows parallel coordinate and other plots based on variable selection
   observe({
     if (is.null(input$vars) || input$vars == "") {
       shinyjs::hide("parcoords")
@@ -28,6 +31,7 @@ function(input, output) {
       shinyjs::show("packagePlot5")
   })
   
+  # read in the dataset, remove any rows with missing data
   info <- reactive({
     infile <- input$file1
     if (is.null(infile)){
@@ -39,6 +43,7 @@ function(input, output) {
   })
   
   
+  # show the variable names in the dataset for user selection
   output$vars<- renderUI({
     df <- info()
     if (is.null(df)) return(NULL)
@@ -48,6 +53,7 @@ function(input, output) {
   })
   
   
+  # let user select time
   output$time<- renderUI({
     df <- info()
     if (is.null(df)) return(NULL)
@@ -56,7 +62,7 @@ function(input, output) {
     selectInput("time","Select time",items, multiple = F)
   })
   
-  
+  # let user select censoring indicator
   output$censor<- renderUI({
     df <- info()
     if (is.null(df)) return(NULL)
@@ -65,6 +71,7 @@ function(input, output) {
     selectInput("censor","Select censor",items, multiple = F)
   })
   
+  # let user select number of clusters
   output$numclust<- renderUI({
     items=c(1:5)
     names(items)=items
@@ -72,6 +79,7 @@ function(input, output) {
   })
   
 
+# main part of app, calculates tSNE, k-means, variable significane by cluster and survival models and outputs a list of results to be used by other parts of the app
   models=eventReactive(input$action,{
     adata=info()
     adatause=adata[input$vars]
@@ -129,6 +137,7 @@ function(input, output) {
   })
   
   
+  # parallel coordinate plot for clustered data
   output$parcoords = renderParcoords({
     
     allval=models()
@@ -139,6 +148,7 @@ function(input, output) {
     
   })
   
+  # parallel coordinate plot for all variables
   output$parcoords2 = renderParcoords({
     
     
@@ -149,6 +159,7 @@ function(input, output) {
   })
   
   
+  # plot for MSE
   output$packagePlot2 <- renderPlotly({
     allval=models()
     duse=as.data.frame(cbind(y=allval$e,x=1:10))
@@ -162,7 +173,7 @@ function(input, output) {
       layout(xaxis = x, yaxis = y)
   })
   
-  
+  # tSNE scatter plot
   output$packagePlot3 <- renderPlotly({
     allval=models()
     
@@ -176,18 +187,20 @@ function(input, output) {
       layout(xaxis = x, yaxis = y)
   })
   
+  # survival plot 1
   output$packagePlot4 <- renderPlot({
     allval=models()
     ggsurvplot(fit=allval$d, risk.table = F,pval = TRUE,data=allval$b,palette =allval$k)
   })
   
+  # survival plot 2
   output$packagePlot5 <- renderPlot({
     allval=models()
     ggsurvplot(fit=allval$i, risk.table = F,pval = TRUE,data=allval$j,palette =allval$l)
   })
   
   
-
+# scatterplot matrix, all variables
   output$scatterplot=renderPairsD3({
     allval=models()
     kdata=allval$g
@@ -195,6 +208,7 @@ function(input, output) {
     pairsD3(kdata[,-ncol(kdata)],group=cluster,big = T, col=allval$k)
   })  
    
+# scatterplot matrix, only statistically significantly different variables among clusters  
  output$scatterplot2=renderPairsD3({
    allval=models()
    kdata=allval$m
